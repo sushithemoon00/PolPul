@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Fundamentos del Sistema de Responsabilidad Penal</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f3f4f6; color: #333; display: flex; justify-content: center; padding: 20px; }
+        .container { background-color: white; width: 100%; max-width: 600px; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2c3e50; font-size: 24px; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #666; font-size: 14px; margin-bottom: 25px; }
+        .question-text { font-size: 18px; font-weight: bold; margin-bottom: 20px; }
+        .option { background-color: #f8f9fa; border: 2px solid #e9ecef; padding: 15px; margin-bottom: 10px; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+        .option:hover { background-color: #e2e6ea; }
+        .correct { background-color: #d4edda !important; border-color: #c3e6cb !important; color: #155724; }
+        .incorrect { background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24; }
+        .disabled { pointer-events: none; }
+        
+        /* Estilos para los botones */
+        button { width: 100%; padding: 15px; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; margin-top: 10px; transition: 0.2s; font-weight: bold; }
+        .btn-primary { background-color: #007bff; color: white; display: none; }
+        .btn-primary:hover { background-color: #0056b3; }
+        .btn-secondary { background-color: #e2e8f0; color: #475569; display: block; }
+        .btn-secondary:hover { background-color: #cbd5e1; }
+        
+        .score { text-align: center; font-size: 22px; font-weight: bold; margin-bottom: 10px; }
+        .stats { background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; line-height: 1.6; }
+        .badge-reserva { background-color: #ffc107; color: #000; font-size: 12px; padding: 3px 8px; border-radius: 12px; font-weight: bold; margin-left: 10px; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>📚 Simulador de Examen: INTRODUCCION A LAS POLITICAS PUBLICAS (Criminologia) — Febrero 2026 Nacional ORIGINAL 1PP  Modelo A</h1>
+        <p class="subtitle">Aciertos: +0,5 | Fallos: -0,1 | Blancos: 0</p>
+        
+        <div id="quiz-area">
+            <p style="color: #666; font-weight: bold;">
+                Pregunta <span id="current-question-num">1</span> de <span id="total-questions">X</span> 
+                <span id="badge-reserva" class="badge-reserva">Pregunta de Reserva</span>
+            </p>
+            <div class="question-text" id="question">Cargando pregunta...</div>
+            <div id="options"></div>
+            
+            <button id="skip-btn" class="btn-secondary" onclick="skipQuestion()">Dejar en blanco</button>
+            <button id="next-btn" class="btn-primary" onclick="nextQuestion()">Siguiente Pregunta</button>
+        </div>
+
+        <div id="result-area" style="display: none;">
+            <!-- Los resultados se inyectan aquí desde JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        const preguntas = [
+            { pregunta: "Según la definición de Jenkins, ¿qué es una política pública?:", opciones: ["Solo las leyes aprobadas por el parlamento.", "Únicamente las decisiones del poder ejecutivo.", "El conjunto de decisiones interrelacionadas adoptadas por actores políticos concernientes a la selección de fines y medios.", "Las actuaciones de los partidos políticos."], respuestaCorrecta: 2 },
+            { pregunta: "Un programa de justicia restaurativa muestra buenos outputs, pero malos outcomes. ¿Qué significa esto?:", opciones: ["Que no se implementó el programa correctamente.", "Que se realizaron las actividades previstas, pero no se logró el impacto social esperado.", "Que no hubo presupuesto suficiente.", "Que se realizaron las actividades previstas y se logró el impacto social esperado."], respuestaCorrecta: 1 },
+            { pregunta: "Un criminólogo desea evaluar el impacto de una política de reinserción social de exreclusos. ¿Cuál de las siguientes medidas constituye un indicador de 'outcome'?:", opciones: ["Número de programas de formación implementados.", "Presupuesto asignado al programa.", "Tasa de reincidencia delictiva de los participantes.", "Todas las anteriores."], respuestaCorrecta: 2 },
+            { pregunta: "¿Qué tipo de problemas públicos se consideran 'retorcidos' o 'perversos' (wicked problems)?:", opciones: ["Problemas con solución técnica clara y definida.", "Problemas complejos, difusos, con múltiples causas y sin solución única definitiva.", "Problemas que solo afectan a minorías específicas.", "Problemas exclusivamente de naturaleza social."], respuestaCorrecta: 1 },
+            { pregunta: "Una campaña gubernamental de prevención del consumo de drogas en escuelas, ¿qué tipo de política sería según la tipología de instrumentos?:", opciones: ["Política regulatoria.", "Política constituyente.", "Política coercitiva.", "Ninguna de las anteriores."], respuestaCorrecta: 3 },
+            { pregunta: "En el ámbito criminológico, ¿cómo se clasificaría una política de construcción de nuevas cárceles según sus efectos distributivos?:", opciones: ["Política exclusivamente autorregulatoria.", "Política distributiva con externalidades negativas concentradas en comunidades específicas.", "Política constitutiva sin efectos distributivos.", "Política exclusivamente simbólica sin efectos reales."], respuestaCorrecta: 1 },
+            { pregunta: "Entre los instrumentos de política pública según el grado de coerción, ¿cuál se considera más coercitivo?:", opciones: ["La información y persuasión.", "La exhortación voluntaria.", "Los subsidios e incentivos económicos.", "La regulación obligatoria con sanciones."], respuestaCorrecta: 3 },
+            { pregunta: "En el contexto de las políticas públicas criminológicas, ¿qué instrumento se utilizaría en una política de 'tolerancia cero'?:", opciones: ["Subsidios a comunidades afectadas.", "Campañas informativas voluntarias.", "Regulación estricta y aplicación rigurosa de sanciones.", "Solo provisión de servicios sociales preventivos."], respuestaCorrecta: 2 },
+            { pregunta: "Según la clasificación de Vedung, ¿qué representa la metáfora de 'sermones' como instrumento de política?:", opciones: ["Regulaciones religiosas obligatorias.", "Información y persuasión para influir en comportamientos.", "Sanciones morales formales.", "Incentivos económicos indirectos."], respuestaCorrecta: 1 },
+            { pregunta: "Según la taxonomía de Hood, ¿qué tipo de instrumento sería la creación de un registro público de delincuentes sexuales?:", opciones: ["Instrumento basado en autoridad (capacidad regulatoria y de registro).", "Instrumento basado exclusivamente en tesoro.", "Instrumento basado solo en organización.", "Instrumento basado únicamente en nodalidad informativa."], respuestaCorrecta: 0 },
+            { pregunta: "¿A qué se refiere el 'punto de veto' (veto point) en el análisis institucional de políticas públicas?:", opciones: ["Exclusivamente al poder de veto del presidente en sistemas presidencialistas.", "Al lugar en el proceso decisorio donde un actor puede bloquear una decisión.", "Únicamente a las decisiones de tribunales constitucionales que invalidan leyes.", "A los mecanismos de control que solo existen en sistemas parlamentarios europeos."], respuestaCorrecta: 1 },
+            { pregunta: "Según la teoría del path dependency (dependencia del sendero), ¿qué ocurre con las políticas públicas una vez establecidas?:", opciones: ["Pueden cambiarse fácilmente en cualquier momento.", "Son completamente independientes del contexto histórico.", "Desaparecen automáticamente tras diez años.", "Generan inercia institucional y costes de cambio que dificultan su modificación radical."], respuestaCorrecta: 3 },
+            { pregunta: "Según la teoría de los 'jugadores con veto' (veto players) de Tsebelis, ¿cómo afectan los veto players al cambio de políticas públicas?:", opciones: ["Los veto players facilitan siempre los cambios radicales de políticas.", "Los veto players solo son relevantes en sistemas federales con bicameralismo fuerte.", "A mayor número de veto players, mayor dificultad para cambiar el status quo de las políticas.", "El número de veto players es irrelevante si existe consenso ideológico entre partidos."], respuestaCorrecta: 2 },
+            { pregunta: "¿Qué diferencia existe entre agenda sistémica y agenda institucional?:", opciones: ["Son exactamente lo mismo, sin distinción alguna.", "La agenda institucional incluye todos los problemas públicos; la agenda sistémica solo incluye los problemas que reciben atención de decisores.", "La agenda sistémica solo opera en sistemas federales.", "Ninguna de las anteriores."], respuestaCorrecta: 3 },
+            { pregunta: "Según el modelo de ciclo de atención a las cuestiones de Downs, ¿cuál es la primera fase?:", opciones: ["El descubrimiento alarmado y entusiasta.", "La decadencia gradual del interés público.", "La etapa previa del problema donde existe la condición, pero sin atención pública.", "La etapa posterior del problema resuelto."], respuestaCorrecta: 2 },
+            { pregunta: "¿A qué tipo de restricciones se enfrenta la formulación de políticas?:", opciones: ["Solo restricciones de naturaleza económica.", "Restricciones sustantivas (inherentes al problema) y procedimentales o institucionales.", "Solo restricciones de tipo político-partidista.", "No existen restricciones reales significativas."], respuestaCorrecta: 1 },
+            { pregunta: "Según Page y Jenkins, ¿cuáles son los modos básicos en que los burócratas están involucrados en la formulación de una política pública?:", opciones: ["Producción y servicio.", "Solo mantenimiento administrativo.", "Producción, mantenimiento y servicio.", "Solo servicio de asesoramiento técnico."], respuestaCorrecta: 2 },
+            { pregunta: "En la formulación de una política penitenciaria, ¿qué factor NO sería una 'restricción sustantiva'?:", opciones: ["El calendario electoral del partido gobernante.", "Las limitaciones de los programas de rehabilitación.", "La imposibilidad de garantizar 100% la no reincidencia.", "La complejidad del comportamiento humano."], respuestaCorrecta: 0 },
+            { pregunta: "En el ámbito criminológico, ¿qué tipo de decisión sería la aprobación de una reforma del Código Penal?:", opciones: ["Decisión administrativa rutinaria de baja importancia.", "Decisión política con alta visibilidad y potencial conflicto.", "Decisión puramente técnica sin dimensión política.", "Una 'no-decisión' según Bachrach y Baratz."], respuestaCorrecta: 1 },
+            { pregunta: "Un sistema penitenciario quiere evaluar si un programa de rehabilitación ha reducido efectivamente la reincidencia delictiva. ¿Qué tipo de evaluación sería la MÁS adecuada para determinar si se están cumpliendo los objetivos del programa?:", opciones: ["Evaluación del proceso, porque examina los métodos organizativos y procedimientos utilizados.", "Evaluación del esfuerzo, porque mide la cantidad de recursos invertidos en el programa.", "Evaluación de la efectividad o eficacia, porque compara el rendimiento del programa con sus objetivos previstos de reducción de reincidencia.", "Evaluación de la cobertura, porque cuenta el número de internos que participaron en el programa."], respuestaCorrecta: 2 },
+            { pregunta: "En un contexto tipo como el de España, y en el caso de una política penitenciaria de reinserción, ¿qué actores estarían involucrados en la implantación?:", opciones: ["Solo el Ministerio del Interior e instituciones penitenciarias.", "Solo las empresas de cárceles privadas.", "Ministerio del Interior, administraciones penitenciarias, gobiernos regionales con competencias, jueces de vigilancia penitenciaria, y ONGs.", "Solo organizaciones no gubernamentales exclusivamente."], respuestaCorrecta: 2 },
+            { pregunta: "Según el modelo de Bardach, ¿cuál es el primer paso en el análisis aplicado de políticas?:", opciones: ["Seleccionar los criterios de evaluación.", "Proyectar los resultados esperados.", "Definir el problema correctamente.", "Construir alternativas de solución."], respuestaCorrecta: 2 }
+        ];
+
+        let preguntaActual = 0;
+        let puntuacion = 0.0;
+        let aciertos = 0;
+        let fallos = 0;
+        let blancos = 0;
+        
+        // Las últimas 2 preguntas son de reserva (índices 20 y 21)
+        const totalEvaluables = preguntas.length - 2; 
+
+        document.getElementById("total-questions").innerText = preguntas.length;
+
+        function loadQuestion() {
+            const q = preguntas[preguntaActual];
+            document.getElementById("question").innerText = q.pregunta;
+            document.getElementById("current-question-num").innerText = preguntaActual + 1;
+            
+            // Mostrar etiqueta si es pregunta de reserva
+            const badgeReserva = document.getElementById("badge-reserva");
+            if (preguntaActual >= totalEvaluables) {
+                badgeReserva.style.display = "inline-block";
+            } else {
+                badgeReserva.style.display = "none";
+            }
+
+            const optionsDiv = document.getElementById("options");
+            optionsDiv.innerHTML = "";
+            
+            // Resetear botones
+            document.getElementById("next-btn").style.display = "none";
+            document.getElementById("skip-btn").style.display = "block";
+
+            q.opciones.forEach((opcion, index) => {
+                const div = document.createElement("div");
+                div.className = "option";
+                div.innerText = opcion;
+                div.onclick = () => checkAnswer(index, div);
+                optionsDiv.appendChild(div);
+            });
+        }
+
+        function checkAnswer(selectedIndex, selectedDiv) {
+            const q = preguntas[preguntaActual];
+            const options = document.getElementById("options").children;
+            
+            // Bloquear opciones una vez seleccionada una
+            for (let opt of options) {
+                opt.classList.add("disabled");
+            }
+
+            let esReserva = (preguntaActual >= totalEvaluables);
+
+            // Comprobar si es correcta
+            if (selectedIndex === q.respuestaCorrecta) {
+                selectedDiv.classList.add("correct");
+                if (!esReserva) {
+                    aciertos++;
+                    puntuacion += 0.5;
+                }
+            } else {
+                selectedDiv.classList.add("incorrect");
+                // Mostrar siempre la correcta
+                options[q.respuestaCorrecta].classList.add("correct");
+                if (!esReserva) {
+                    fallos++;
+                    puntuacion -= 0.1;
+                }
+            }
+
+            // Cambiar botones
+            document.getElementById("skip-btn").style.display = "none";
+            document.getElementById("next-btn").style.display = "block";
+        }
+
+        function skipQuestion() {
+            let esReserva = (preguntaActual >= totalEvaluables);
+            if (!esReserva) {
+                blancos++;
+            }
+            nextQuestion();
+        }
+
+        function nextQuestion() {
+            preguntaActual++;
+            if (preguntaActual < preguntas.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            document.getElementById("quiz-area").style.display = "none";
+            
+            // Formatear nota final a 2 decimales. (Si es menor de 0, se puede quedar en negativo o poner un Math.max(0, puntuacion) si la uni no pone notas bajo cero, lo dejo exacto)
+            let notaFinalStr = puntuacion.toFixed(2);
+            let colorNota = puntuacion >= 5.0 ? '#155724' : '#721c24';
+
+            let htmlResultados = `
+                <p class="score">¡Examen Terminado!</p>
+                <div style="text-align: center; font-size: 36px; font-weight: bold; color: ${colorNota}; margin: 20px 0;">
+                    ${notaFinalStr} <span style="font-size: 20px; color: #666;">/ 10</span>
+                </div>
+                
+                <div class="stats">
+                    <p>✅ <strong>Aciertos:</strong> ${aciertos} <span style="color:#155724">(+${(aciertos * 0.5).toFixed(2)} pts)</span></p>
+                    <p>❌ <strong>Fallos:</strong> ${fallos} <span style="color:#721c24">(-${(fallos * 0.1).toFixed(2)} pts)</span></p>
+                    <p>⬜ <strong>En blanco:</strong> ${blancos} <span style="color:#666">(0 pts)</span></p>
+                    <hr style="border: 0; border-top: 1px solid #ddd; margin: 15px 0;">
+                    <p style="font-size: 13px; color: #666; text-align: center;">Las 2 preguntas de reserva no han contabilizado en la nota.</p>
+                </div>
+
+                <button class="btn-primary" style="display: block;" onclick="location.reload()">Repetir Examen</button>
+            `;
+
+            const resultArea = document.getElementById("result-area");
+            resultArea.innerHTML = htmlResultados;
+            resultArea.style.display = "block";
+        }
+
+        // Iniciar el test
+        loadQuestion();
+    </script>
+</body>
+</html>
